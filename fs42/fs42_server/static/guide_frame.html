@@ -334,7 +334,8 @@
                     const scheduleBlocks = await window.fs42Common.fetchSchedule(
                         station.network_name,
                         formatDateForAPI(extendedStartTime),
-                        formatDateForAPI(guideEndTime)
+                        formatDateForAPI(guideEndTime),
+                        true
                     );
 
                     if (scheduleBlocks && scheduleBlocks.length > 0) {
@@ -416,16 +417,31 @@
                 programDiv.classList.add('current-program');
             }
             
-            let title = block.title || 'Untitled';
+            const titles = window.fs42Guide.programTitles(block);
+            let title = titles.primary;
+            let episodeTitle = titles.secondary;
             if (debugShowFilename) {
                 title = getBlockFilename(block) || title;
+                episodeTitle = '';
             }
             const startTime = window.fs42Guide.formatTime(blockStart, timeFormat);
-            
-            programDiv.innerHTML = `
-                <span class="program-title">${title}</span>
-                <span class="program-time">${startTime}</span>
-            `;
+
+            const titleSpan = document.createElement('span');
+            titleSpan.className = 'program-title';
+            titleSpan.textContent = title;
+            programDiv.appendChild(titleSpan);
+
+            if (episodeTitle) {
+                const episodeSpan = document.createElement('span');
+                episodeSpan.className = 'program-episode';
+                episodeSpan.textContent = episodeTitle;
+                programDiv.appendChild(episodeSpan);
+            }
+
+            const timeSpan = document.createElement('span');
+            timeSpan.className = 'program-time';
+            timeSpan.textContent = startTime;
+            programDiv.appendChild(timeSpan);
             
             return programDiv;
         }

@@ -287,11 +287,12 @@ class ScheduleFrame(tk.Frame):
                 if c.width > 0:
                     schedule_label = tk.Label(
                         self.scroll_frame,
-                        text=f"{c.title}",
+                        text=c.display_title,
                         bg=self.conf.bottom_bg,
                         fg=self.conf.schedule_fg,
                         font=self.conf._schedule_font,
                         anchor="w",
+                        justify=tk.LEFT,
                         borderwidth=self.conf.schedule_border_width,
                         relief=self.conf.schedule_border_relief,
                     )

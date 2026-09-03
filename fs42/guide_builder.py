@@ -5,6 +5,7 @@ import datetime
 
 sys.path.append(os.getcwd())
 from fs42.station_manager import StationManager
+from fs42.guide_titles import guide_titles
 from fs42.liquid_manager import LiquidManager, ScheduleNotFound, ScheduleQueryNotInBounds
 from fs42.liquid_blocks import LiquidBlock
 from fs42.title_parser import TitleParser
@@ -15,14 +16,24 @@ def normalize_video_title(title):
 
 
 class PreviewBlock:
-    def __init__(self, title, width=1):
+    def __init__(self, title, width=1, show_title=None, episode_title=None):
         self.title = title
+        self.show_title = show_title
+        self.episode_title = episode_title
         self.width = width
         self.started_earlier = False
         self.ends_later = False
 
     def __repr__(self):
         return f"{self.title}: width={self.width} started={self.started_earlier} later={self.ends_later}"
+
+    @property
+    def display_title(self):
+        primary = self.show_title or self.title
+        secondary = self.episode_title
+        if secondary and primary and secondary.casefold() == primary.casefold():
+            secondary = None
+        return f"{primary}\n{secondary}" if secondary else primary
 
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__)
@@ -60,7 +71,12 @@ class ScheduleQuery:
             if normalize:
                 _display_title = normalize_video_title(programming_block.title)
 
-            _block = PreviewBlock(_display_title)
+            show_title, episode_title = guide_titles(programming_block, episode_fallback=_display_title)
+            _block = PreviewBlock(
+                _display_title,
+                show_title=show_title,
+                episode_title=episode_title,
+            )
             _block.started_earlier = started_earlier
             _block.ends_later = ends_later
             _block.width = remaining_duration.total_seconds()

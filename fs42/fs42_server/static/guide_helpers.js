@@ -34,5 +34,18 @@
         return requested.replace(/%%|%[-_]?[HIMSk]|%[-_]?l|%[pPRTr]/g, token => replacements[token] ?? token);
     }
 
-    return { formatTime };
+    function programTitles(block) {
+        block = block || {};
+        const legacyTitle = String(block.title || '').trim();
+        const showTitle = String(block.show_title || '').trim();
+        let episodeTitle = String(block.episode_title || '').trim();
+        const primary = showTitle || legacyTitle || 'Untitled';
+
+        if (episodeTitle && episodeTitle.toLocaleLowerCase() === primary.toLocaleLowerCase()) {
+            episodeTitle = '';
+        }
+        return { primary, secondary: episodeTitle };
+    }
+
+    return { formatTime, programTitles };
 }));

@@ -204,6 +204,16 @@
     margin-bottom: 2px;
 }
 
+.program-episode {
+    color: #ddd;
+    font-size: 0.72rem;
+    line-height: 1.05;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-bottom: 1px;
+}
+
 .program-time {
     color: #ccc;
     font-size: 0.7rem;
@@ -211,6 +221,7 @@
 }
 
 .current-program .program-title,
+.current-program .program-episode,
 .current-program .program-time {
     color: #fff;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);

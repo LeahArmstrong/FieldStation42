@@ -21,7 +21,10 @@ const actual = {{
   spacePadded: helpers.formatTime(at(4), '%_H:%_M:%_S'),
   unpadded: helpers.formatTime(at(4), '%-H:%-M:%-S'),
   aliases: helpers.formatTime(at(16), '%R | %r | %%'),
-  unknown: helpers.formatTime(at(16), '%Q %H')
+  unknown: helpers.formatTime(at(16), '%Q %H'),
+  fullTitles: helpers.programTitles({{title: 'legacy', show_title: 'Daria', episode_title: 'Esteemsters'}}),
+  legacyTitle: helpers.programTitles({{title: 'The Matrix'}}),
+  duplicate: helpers.programTitles({{title: 'Daria', show_title: 'Daria', episode_title: 'daria'}})
 }};
 process.stdout.write(JSON.stringify(actual));
 """
@@ -35,6 +38,9 @@ process.stdout.write(JSON.stringify(actual));
         "unpadded": "4:5:9",
         "aliases": "16:05 | 04:05:09 PM | %",
         "unknown": "%Q 16",
+        "fullTitles": {"primary": "Daria", "secondary": "Esteemsters"},
+        "legacyTitle": {"primary": "The Matrix", "secondary": ""},
+        "duplicate": {"primary": "Daria", "secondary": ""},
     }
 
 
@@ -47,6 +53,10 @@ def test_browser_guides_use_shared_time_helper():
     assert "fetchGuideConfig()" in custom_guide
     assert "formatTime12" not in custom_guide
     assert "hour12:" not in standard_guide
+    assert "formatDateForAPI(guideEndTime),\n                        true" in standard_guide
+    assert "programTitles(block)" in standard_guide
+    assert "programTitles(block)" in custom_guide
+    assert "episodeSpan.textContent = episodeTitle" in standard_guide
 
 
 def test_standard_guide_reloads_its_nested_frame():

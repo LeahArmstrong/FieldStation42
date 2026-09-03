@@ -55,6 +55,18 @@ The browser guides implement this time-focused subset: `%H`, `%I`, `%M`, `%S`, `
 `%l`, `%R`, `%T`, `%r`, and `%%`. They support `-` and `_` padding on individual numeric fields.
 Other directives remain visible unchanged.
 
+### Guide show and episode titles
+
+Schedule responses retain the existing `title` field and may add `show_title` and `episode_title`.
+With `include_meta=true`, NFO show and episode names take priority. Otherwise, or when NFO metadata
+is absent, the show name falls back to the scheduled catalog tag, sequence tag, then media folder.
+Season folders such as `Season 1`, `season_01`, and `S03` are skipped. The episode name falls back
+to the existing block title.
+
+By default, browser guides request NFO metadata and render the show as the primary label with a
+distinct episode name beneath it. The native guide renders the same two-line layout using the
+scheduled tag, sequence tag, or media-folder fallbacks.
+
 ## Day Parts
 
 Day parts define time periods used for scheduling purposes. Each day part has a start and end hour (0-23).

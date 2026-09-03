@@ -114,12 +114,13 @@ Get schedule summary for a specific station.
 
 #### Get Detailed Schedule Blocks
 ```http
-GET /schedules/{network_name}?start=YYYY-MM-DDTHH:MM:SS&end=YYYY-MM-DDTHH:MM:SS
+GET /schedules/{network_name}?start=YYYY-MM-DDTHH:MM:SS&end=YYYY-MM-DDTHH:MM:SS&include_meta=true
 ```
 
-Retrieve detailed schedule blocks with optional time filtering.
+Time filtering is optional. Pass `include_meta=true` to attach NFO metadata. Responses retain the
+existing `title` and may add `show_title` and `episode_title` for guide presentation.
 
-**Example:** `GET /schedules/PublicDomain?start=2025-07-13T00:00:00&end=2025-07-14T00:00:00`
+**Example:** `GET /schedules/PublicDomain?start=2025-07-13T00:00:00&end=2025-07-14T00:00:00&include_meta=true`
 
 **Response:**
 ```json
@@ -130,13 +131,22 @@ Retrieve detailed schedule blocks with optional time filtering.
       "content": [...],
       "start_time": "2025-07-13T00:00:00",
       "end_time": "2025-07-13T00:30:00",
-      "title": "quickstop",
+      "title": "Esteemsters",
+      "show_title": "Daria",
+      "episode_title": "Esteemsters",
+      "meta": {"type": "episode", "show_title": "Daria", "title": "Esteemsters"},
       "plan": [...],
       "break_strategy": "standard",
       "break_info": {...}
     }
   ]
 }
+```
+
+For a compact multi-station guide response, use:
+
+```http
+GET /schedules/all?start=YYYY-MM-DDTHH:MM:SS&end=YYYY-MM-DDTHH:MM:SS&include_meta=true
 ```
 
 ### 📚 Catalog Management
