@@ -13,6 +13,7 @@ const LOOP = params.get('loop') === '1';
 let RANDOM_START = params.get('random_start') === '1';
 
 let stations = [];
+let timeFormat = '%H:%M';
 
 // list-mode scroll state
 let animFrame = null;
@@ -61,8 +62,8 @@ function getCSSVar(name) {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 }
 
-function formatTime12(date) {
-  return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+function formatGuideTime(date) {
+  return window.fs42Guide.formatTime(date, timeFormat);
 }
 
 function formatDateForAPI(date) {
@@ -184,7 +185,7 @@ function buildScrollStrip(slots, schedules) {
   for (const slot of slots) {
     const heading = document.createElement('div');
     heading.className = 'time-slot-heading';
-    heading.textContent = formatTime12(slot.start);
+    heading.textContent = formatGuideTime(slot.start);
     strip.appendChild(heading);
 
     for (const station of stations) {
@@ -212,7 +213,8 @@ function buildScrollStrip(slots, schedules) {
 
       const result = findBlockForSlot(schedules[station.network_name] || [], slot.start);
       if (result) {
-        const t = result.block.title || offairText;
+        const titles = window.fs42Guide.programTitles(result.block);
+        const t = titles.secondary ? `${titles.primary} — ${titles.secondary}` : titles.primary;
         titleSpan.textContent = t.length > 20 ? t.slice(0, 20) + '…' : t;
         if (result.continued) row.classList.add('continued');
       } else {
@@ -237,7 +239,7 @@ function stopScrolling() {
 
 async function buildGuide() {
   const slots = computeSlotTimes();
-  const schedules = MOCK ? mockFetchAllSchedules(slots) : await fetchAllSchedules(slots);
+  const schedules = MOCK ? mockFetchAllSchedules(slots) : await fetchAllSchedules(slots, USE_META);
   const listings = document.getElementById('guide-listings');
   listings.innerHTML = '';
   listings.appendChild(buildScrollStrip(slots, schedules));
@@ -359,7 +361,7 @@ function updateGridHeader(slots) {
   for (const slot of slots) {
     const slotEl = document.createElement('div');
     slotEl.className = 'grid-time-slot';
-    slotEl.textContent = formatTime12(slot.start);
+    slotEl.textContent = formatGuideTime(slot.start);
     header.appendChild(slotEl);
   }
 }
@@ -385,13 +387,17 @@ function createGridProgramBlock(block, guideStartMs, guideEndMs, totalMs, now) {
 
   const titleSpan = document.createElement('span');
   titleSpan.className = 'program-title';
-  titleSpan.textContent = block.title || 'Untitled';
+  const titles = window.fs42Guide.programTitles(block);
+  titleSpan.textContent = titles.primary;
   el.appendChild(titleSpan);
 
   const meta = USE_META && block.meta;
   let desc = meta && meta.plot;
   let isEpisodeTitle = false;
-  if (meta && meta.type === 'episode' && !SHOW_DESCRIPTION && meta.title) {
+  if (!SHOW_DESCRIPTION && titles.secondary) {
+    desc = titles.secondary;
+    isEpisodeTitle = true;
+  } else if (meta && meta.type === 'episode' && !SHOW_DESCRIPTION && meta.title) {
     desc = meta.title;
     isEpisodeTitle = true;
   }
@@ -593,7 +599,7 @@ async function initGridMode() {
 
 function startClock() {
   const el = document.getElementById('clock');
-  const tick = () => { el.textContent = formatTime12(new Date()); };
+  const tick = () => { el.textContent = formatGuideTime(new Date()); };
   tick();
   setInterval(tick, 1000);
 }
@@ -768,6 +774,9 @@ function startTextCarousel() {
 
 async function init() {
   await loadTheme(THEME);
+
+  const guideConfig = await window.fs42Common.fetchGuideConfig();
+  timeFormat = guideConfig.time_format || '%H:%M';
 
   const headerPos = getCSSVar('--header-position').replace(/["']/g, '');
   if (headerPos === 'bottom') document.getElementById('guide-wrapper').classList.add('header-bottom');

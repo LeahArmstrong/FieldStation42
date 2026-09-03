@@ -1,10 +1,21 @@
-from fastapi import APIRouter
 from datetime import datetime
+
+from fastapi import APIRouter
+from fs42.guide_titles import guide_titles
 from fs42.station_manager import StationManager
 from fs42.liquid_api import LiquidAPI
 from fs42.metadata_io import MetadataIO
 
 router = APIRouter(prefix="/schedules", tags=["schedules"])
+
+def _attach_guide_titles(blocks):
+    for block in blocks or []:
+        show_title, episode_title = guide_titles(block)
+        if show_title:
+            block.show_title = show_title
+        if episode_title:
+            block.episode_title = episode_title
+    return blocks
 
 
 def _attach_meta(blocks):
@@ -109,11 +120,16 @@ def _listing_projection(blocks, include_meta):
     # only get the stuff we need
     listings = []
     for block in blocks:
+        show_title, episode_title = guide_titles(block)
         listing = {
             "title": block.title,
             "start_time": block.start_time.isoformat(),
             "end_time": block.end_time.isoformat(),
         }
+        if show_title:
+            listing["show_title"] = show_title
+        if episode_title:
+            listing["episode_title"] = episode_title
         if include_meta:
             meta = getattr(block, "meta", None)
             if meta:
@@ -159,4 +175,5 @@ async def get_schedule(network_name: str, start: str = None, end: str = None, in
     schedule_blocks = LiquidAPI.get_blocks(conf, sdt, edt)
     if include_meta:
         _attach_meta(schedule_blocks)
+    _attach_guide_titles(schedule_blocks)
     return {"network_name": network_name, "schedule_blocks": schedule_blocks}

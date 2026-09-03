@@ -5,6 +5,15 @@ from fs42.liquid_manager import LiquidManager
 
 router = APIRouter(prefix="/summary", tags=["summary"])
 
+
+@router.get("/config")
+async def get_public_config():
+    """Return the small, non-sensitive configuration surface used by the web UI."""
+    time_format = StationManager().server_conf.get("time_format", "%H:%M")
+    if not isinstance(time_format, str) or not time_format:
+        time_format = "%H:%M"
+    return {"time_format": time_format}
+
 @router.get("/")
 async def get_summary():
     summaries = []
