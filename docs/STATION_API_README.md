@@ -419,6 +419,7 @@ These provide full schema documentation, request/response examples, and a testin
 
 - All operations are logged to the FieldStation42 server logs
 - Configuration changes are immediately reflected (auto-reload)
-- The main configuration file (`confs/main_config.json`) is not accessible via this API
+- The API does not expose the main configuration file for reading or writing. `/summary/config`
+  publishes only the non-sensitive `time_format` value used by browser guides.
 - Atomic file writes are used to prevent corruption
 - Thread-safety is handled via the Borg singleton pattern in StationManager

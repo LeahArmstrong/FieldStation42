@@ -13,6 +13,7 @@
 
 <body>
     <script src="/static/fs42_client.js"></script>
+    <script src="/static/guide_helpers.js"></script>
     <script src="/static/common.js"></script>
     <script>
         let stations = [];
@@ -23,6 +24,7 @@
         let verticalScrollInterval = null;
         let autoScrollEnabled = true; // Will be initialized from localStorage
         let debugShowFilename = false; // Debug: show raw file name instead of normalized title
+        let timeFormat = '%H:%M';
         let virtualScrollPosition = 0;
         const TIME_SLOT_WIDTH = 120; // pixels per 30-minute slot
         const SCROLL_SPEED = 0.033; // pixels per second (1 pixel per 30 seconds = slow realistic scroll)
@@ -58,6 +60,9 @@
 
             // Initialize debug (show file name) setting from localStorage
             debugShowFilename = localStorage.getItem('fs42-guide-debug') === 'true';
+
+            const guideConfig = await window.fs42Common.fetchGuideConfig();
+            timeFormat = guideConfig.time_format || '%H:%M';
 
             const content = `
                 <div class="guide-container">
@@ -235,11 +240,7 @@
             
             for (let i = 0; i <= totalSlots; i++) {
                 const slotTime = new Date(guideStartTime.getTime() + (i * 30 * 60 * 1000));
-                const timeStr = slotTime.toLocaleTimeString('en-US', { 
-                    hour: '2-digit', 
-                    minute: '2-digit',
-                    hour12: false 
-                });
+                const timeStr = window.fs42Guide.formatTime(slotTime, timeFormat);
                 const slotLeft = `calc(120px + (100% - 120px) * ${i} / ${totalSlots})`;
                 timelineHTML += `<div class="timeline-slot" style="left: ${slotLeft}; width: ${slotWidth};">${timeStr}</div>`;
             }
@@ -419,11 +420,7 @@
             if (debugShowFilename) {
                 title = getBlockFilename(block) || title;
             }
-            const startTime = blockStart.toLocaleTimeString('en-US', {
-                hour: '2-digit', 
-                minute: '2-digit',
-                hour12: false 
-            });
+            const startTime = window.fs42Guide.formatTime(blockStart, timeFormat);
             
             programDiv.innerHTML = `
                 <span class="program-title">${title}</span>
@@ -468,12 +465,7 @@
             setInterval(() => {
                 currentTime = new Date();
                 document.getElementById('current-time-display').textContent = 
-                    currentTime.toLocaleTimeString('en-US', { 
-                        hour: '2-digit', 
-                        minute: '2-digit', 
-                        second: '2-digit',
-                        hour12: false 
-                    });
+                    window.fs42Guide.formatTime(currentTime, timeFormat);
                 updateTimelineMarker();
             }, 1000);
         }

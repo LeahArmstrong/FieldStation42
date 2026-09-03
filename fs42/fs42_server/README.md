@@ -88,6 +88,17 @@ Get a simple list of all station network names.
 }
 ```
 
+#### Get Browser Guide Configuration
+```http
+GET /summary/config
+```
+
+Returns only the non-sensitive display configuration used by browser guides:
+
+```json
+{"time_format": "%-I:%M %p"}
+```
+
 ### 📅 Schedule Management
 
 #### Get Schedule Summaries

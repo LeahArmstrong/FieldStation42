@@ -44,10 +44,11 @@
         // Initialize page layout
         document.addEventListener('DOMContentLoaded', async function () {
             window.fs42Common.initTheme();
+            const guideFrameUrl = '/static/guide_frame.html?v=' + Date.now();
 
             const content = `
                 <div class="pure-u-1">
-                    <iframe id="guide-frame" src="/static/guide_frame.html" title="Guide">
+                    <iframe id="guide-frame" src="${guideFrameUrl}" title="Guide">
                         <p>Your browser does not support iframes. Please <a href="/static/guide_frame.html">click here to view the Guide</a>.</p>
                     </iframe>
                 </div>

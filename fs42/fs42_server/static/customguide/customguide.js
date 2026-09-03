@@ -13,6 +13,7 @@ const LOOP = params.get('loop') === '1';
 let RANDOM_START = params.get('random_start') === '1';
 
 let stations = [];
+let timeFormat = '%H:%M';
 
 // list-mode scroll state
 let animFrame = null;
@@ -61,8 +62,8 @@ function getCSSVar(name) {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 }
 
-function formatTime12(date) {
-  return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+function formatGuideTime(date) {
+  return window.fs42Guide.formatTime(date, timeFormat);
 }
 
 function formatDateForAPI(date) {
@@ -184,7 +185,7 @@ function buildScrollStrip(slots, schedules) {
   for (const slot of slots) {
     const heading = document.createElement('div');
     heading.className = 'time-slot-heading';
-    heading.textContent = formatTime12(slot.start);
+    heading.textContent = formatGuideTime(slot.start);
     strip.appendChild(heading);
 
     for (const station of stations) {
@@ -359,7 +360,7 @@ function updateGridHeader(slots) {
   for (const slot of slots) {
     const slotEl = document.createElement('div');
     slotEl.className = 'grid-time-slot';
-    slotEl.textContent = formatTime12(slot.start);
+    slotEl.textContent = formatGuideTime(slot.start);
     header.appendChild(slotEl);
   }
 }
@@ -593,7 +594,7 @@ async function initGridMode() {
 
 function startClock() {
   const el = document.getElementById('clock');
-  const tick = () => { el.textContent = formatTime12(new Date()); };
+  const tick = () => { el.textContent = formatGuideTime(new Date()); };
   tick();
   setInterval(tick, 1000);
 }
@@ -768,6 +769,9 @@ function startTextCarousel() {
 
 async function init() {
   await loadTheme(THEME);
+
+  const guideConfig = await window.fs42Common.fetchGuideConfig();
+  timeFormat = guideConfig.time_format || '%H:%M';
 
   const headerPos = getCSSVar('--header-position').replace(/["']/g, '');
   if (headerPos === 'bottom') document.getElementById('guide-wrapper').classList.add('header-bottom');

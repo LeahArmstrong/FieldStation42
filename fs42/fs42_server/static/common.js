@@ -111,6 +111,14 @@ async function fetchStationSummary() {
     }
 }
 
+async function fetchGuideConfig() {
+    try {
+        return await window.fs42Api.get('summary/config');
+    } catch (e) {
+        return { time_format: '%H:%M' };
+    }
+}
+
 
 async function fetchChannels() {
     try {
@@ -269,6 +277,7 @@ window.fs42Common = {
     createLogDisplay,
     // API functions
     fetchStationSummary,
+    fetchGuideConfig,
     fetchChannels,
     fetchCatalog,
     renderSummaryTable,

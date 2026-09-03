@@ -38,13 +38,22 @@ The `confs/main_config.json` file is optional. If it doesn't exist, FieldStation
 | `server_port` | integer | `4242` | Port for the web server |
 | `channel_socket` | string | `"runtime/channel.socket"` | Unix socket for channel control |
 | `status_socket` | string | `"runtime/play_status.socket"` | Unix socket for status updates |
-| `time_format` | string | `"%H:%M"` | Format for displaying times (strftime format) |
+| `time_format` | string | `"%H:%M"` | Format for displaying times in the native and browser guides (strftime format) |
 | `date_time_format` | string | `"%Y-%m-%dT%H:%M:%S"` | Format for date/time values (strftime format) |
 | `start_mpv` | boolean | `true` | Whether to start mpv player automatically |
 | `db_path` | string | `"runtime/fs42_fluid.db"` | Path to the SQLite database |
 | `normalize_titles` | boolean | `false` | Enable automatic title normalization from filenames |
 | `title_patterns` | array | `[]` | Custom regex patterns for title parsing (see below) |
 | `follow_static_symlinks` | boolean | `false` | Serve symlinks that point outside the static directories (see below) |
+
+### Guide time display
+
+The native guide, standard browser guide, and custom browser guide all use `time_format`. For
+example, `"%H:%M"` displays `16:30`, while `"%-I:%M %p"` displays `4:30 PM`.
+
+The browser guides implement this time-focused subset: `%H`, `%I`, `%M`, `%S`, `%p`, `%P`, `%k`,
+`%l`, `%R`, `%T`, `%r`, and `%%`. They support `-` and `_` padding on individual numeric fields.
+Other directives remain visible unchanged.
 
 ## Day Parts
 
